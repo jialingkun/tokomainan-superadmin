@@ -22,8 +22,9 @@ class m_manajemen_kasir extends CI_Model {
         $this->db->insert('kasir', $input);
     }
 
-    public function edit_kasir($id_kasir, $nama_kolom, $nilai_baru) {
+    public function edit_kasir($id_kasir, $nama_kolom, $nilai_baru, $tgl_modifikasi_data) {
         $this->db->set($nama_kolom, $nilai_baru);
+        $this->db->set('tgl_modifikasi_data', $tgl_modifikasi_data);
         $this->db->where('id_kasir', $id_kasir);
         $this->db->update('kasir');
     }
@@ -31,6 +32,10 @@ class m_manajemen_kasir extends CI_Model {
     public function hapus_kasir($id_kasir) {
         $this->db->where('id_kasir', $id_kasir);
         $this->db->delete('kasir');
+    }
+
+    public function daftar_kasir_dihapus($id_kasir) {
+        $this->db->insert('daftar_kasir_dihapus', $id_kasir);
     }
 }
 ?>

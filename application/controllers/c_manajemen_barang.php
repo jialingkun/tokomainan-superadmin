@@ -25,30 +25,46 @@ class c_manajemen_barang extends CI_Controller {
 
 	public function tambah_barang() {
 		$input = array(
-			'id_barang' => $this->input->post('id_barang'),
-			'nama_barang' => $this->input->post('nama_barang'),
-			'jumlah_dlm_koli' => $this->input->post('jumlah_dlm_koli'),
-			'kategori' => $this->input->post('kategori'),
-			'fungsi' => $this->input->post('fungsi'),
-			'harga_jual_1' => $this->input->post('harga_jual_1'),
-			'harga_jual_2' => $this->input->post('harga_jual_2'),
-			'harga_jual_3' => $this->input->post('harga_jual_3'),
-			'harga_jual_4' => $this->input->post('harga_jual_4'),
+			'id_barang' 			=> $this->input->post('id_barang'),
+			'nama_barang' 			=> $this->input->post('nama_barang'),
+			'jumlah_dlm_koli' 		=> $this->input->post('jumlah_dlm_koli'),
+			'kategori' 				=> $this->input->post('kategori'),
+			'fungsi' 				=> $this->input->post('fungsi'),
+			'harga_jual_1' 			=> $this->input->post('harga_jual_1'),
+			'harga_jual_2'	 		=> $this->input->post('harga_jual_2'),
+			'harga_jual_3' 			=> $this->input->post('harga_jual_3'),
+			'harga_jual_4' 			=> $this->input->post('harga_jual_4'),
+			'tgl_modifikasi_data'	=> date('Y-m-d H:i:s')
 		);
 		
 		$this->load->model('m_manajemen_barang');
 
 		$this->m_manajemen_barang->tambah_data($input);
+
+		// Auto insert barang baru ke tabel stok barang
+		$this->load->model('m_manajemen_toko');
+		$this->load->model('m_manajemen_stok_barang');
+
+		$id_barang = $this->input->post('id_barang');
+		$daftar_toko = $this->m_manajemen_toko->lihat_toko();
+
+		if($daftar_toko != '') {
+			$today = date('Y-m-d');
+			for($i=0; $i<count($daftar_toko); $i++) {
+				$this->m_manajemen_stok_barang->auto_insert_stok_barang_baru($id_barang, $daftar_toko[$i]['id_toko'], $today);
+			}
+		}
 	}
 
 	public function edit_barang() {
 		$id_barang = $this->input->post('id_barang');
 		$nama_kolom = $this->input->post('nama_kolom');
 		$nilai_baru = $this->input->post('nilai_baru');
+		$today = date('Y-m-d H:i:s');
 
 		$this->load->model('m_manajemen_barang');
 
-		$this->m_manajemen_barang->edit_barang($id_barang, $nama_kolom, $nilai_baru);
+		$this->m_manajemen_barang->edit_barang($id_barang, $nama_kolom, $nilai_baru, $today);
 	}
 
 	public function hapus_barang() {
@@ -57,6 +73,7 @@ class c_manajemen_barang extends CI_Controller {
 		$this->load->model('m_manajemen_barang');
 
 		$this->m_manajemen_barang->hapus_barang($id_barang);
+        $this->m_manajemen_barang->daftar_barang_dihapus(array('id_barang' => $id_barang));
 	}
 
 	public function upload_gambar_barang() {
@@ -115,5 +132,39 @@ class c_manajemen_barang extends CI_Controller {
 		}
 
 		echo json_encode($pesan);
+	}
+
+	public function daftar_kategori() {
+		$keyword = $this->input->post('term');
+
+		$this->load->model('m_manajemen_barang');
+
+		$data = $this->m_manajemen_barang->daftar_kategori($keyword);
+
+		if($data != '') {
+			// Ubah data sesuai dengan format autocomplete jquery-ui
+			for($i=0; $i<count($data); $i++) {
+				$response[$i]['label'] = $data[$i]['kategori'];
+				$response[$i]['value'] = $data[$i]['kategori'];
+			}
+			echo json_encode($response);
+		}
+	}
+
+	public function daftar_fungsi() {
+		$keyword = $this->input->post('term');
+
+		$this->load->model('m_manajemen_barang');
+
+		$data = $this->m_manajemen_barang->daftar_fungsi($keyword);
+
+		if($data != '') {
+			// Ubah data sesuai dengan format autocomplete jquery-ui
+			for($i=0; $i<count($data); $i++) {
+				$response[$i]['label'] = $data[$i]['fungsi'];
+				$response[$i]['value'] = $data[$i]['fungsi'];
+			}
+			echo json_encode($response);
+		}
 	}
 }

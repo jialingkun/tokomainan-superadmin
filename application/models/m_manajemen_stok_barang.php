@@ -7,12 +7,12 @@ class m_manajemen_stok_barang extends CI_Model {
         $this->load->database();
     }
 
-    public function daftar_stok_barang() {
+    public function daftar_stok_barang($id_toko) {
         $this->db->select('stok_barang.id_barang, barang.nama_barang, stok_barang.id_toko, toko.nama_toko, stok_barang.stok_barang, stok_barang.tgl_modifikasi_data');
         $this->db->from('stok_barang');
         $this->db->join('barang', 'stok_barang.id_barang = barang.id_barang');
         $this->db->join('toko', 'stok_barang.id_toko = toko.id_toko');
-        $this->db->order_by('stok_barang.id_barang', 'ASC');
+        $this->db->where('stok_barang.id_toko', $id_toko);
         $query = $this->db->get();
 
         if($query->num_rows() > 0) {
@@ -40,12 +40,12 @@ class m_manajemen_stok_barang extends CI_Model {
         $this->db->update('stok_barang');
     }
 
-    public function laporan_barang_keluar() {
+    public function laporan_barang_keluar($id_toko) {
         $this->db->select('laporan_barang_keluar.*, barang.nama_barang, toko.nama_toko');
         $this->db->from('laporan_barang_keluar');
         $this->db->join('barang', 'laporan_barang_keluar.id_barang = barang.id_barang');
         $this->db->join('toko', 'laporan_barang_keluar.id_toko = toko.id_toko');
-        $this->db->order_by('DATE(laporan_barang_keluar.waktu_keluar)', 'DESC');
+        $this->db->where('laporan_barang_keluar.id_toko', $id_toko);
         $query = $this->db->get();
 
         if($query->num_rows() > 0) {
@@ -69,6 +69,16 @@ class m_manajemen_stok_barang extends CI_Model {
             'keterangan'    => $keterangan
         );
         $this->db->insert('laporan_barang_keluar', $input);
+    }
+
+    public function auto_insert_stok_barang_baru($id_barang, $id_toko, $today) {
+        $input = array(
+            'id_barang'             => $id_barang,
+            'id_toko'               => $id_toko,
+            'stok_barang'           => 0,
+            'tgl_modifikasi_data'   => $today
+        );
+        $this->db->insert('stok_barang', $input);
     }
 }
 ?>
