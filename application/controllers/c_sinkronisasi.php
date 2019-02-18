@@ -30,6 +30,7 @@ class c_sinkronisasi extends CI_Controller {
             'id_pelanggan'        => $this->input->post('id_pelanggan'),
             'nama_pelanggan'      => $this->input->post('nama_pelanggan'),
             'alamat_pelanggan'    => $this->input->post('alamat_pelanggan'),
+            'ekspedisi'           => $this->input->post('ekspedisi'),
             'telepon_pelanggan'   => $this->input->post('telepon_pelanggan'),
             'maks_utang'          => $this->input->post('maks_utang'),
             'level'               => $this->input->post('level'),
@@ -95,7 +96,7 @@ class c_sinkronisasi extends CI_Controller {
         $status[0] = $status_laporan;
         $status[1] = $status_detail;
         $status[2] = $status_stok;
-
+        
         echo json_encode($status);
     }
 
